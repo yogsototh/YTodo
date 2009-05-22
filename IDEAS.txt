@@ -1,0 +1,67 @@
+Il est ironique d'utiliser un fichier de TODO list pour
+un projet dont le but est justement d'améliorer cet état de fait.
+
+1 - réflexion
+  a. structure de données
+  b. visualisation
+  c. ordre des tâches
+  d. contextes
+  e. projets (jusqu'où aller ? quasi-Gantt)
+
+
+  idées en vrac. L'idée GTD n'est pas mauvaise:
+  - une tâche arrive : 
+            ajout rapide dans (@Inbox)
+        ou  ajout avec questionnement :
+            * moins de deux minutes ?
+                oui -> tout de suite (compteur)
+            non
+            * est-ce une action ? non -> @notes
+            oui -> pour moi ? -> non -> qui contacter ? 
+                                        (nouveau détail de tache)
+            oui -> détails (contextes, projets, notes, contacts, dépendances...)
+
+  - interface :
+        prochaine tache
+        liste des taches (ordonée en prenant en compte 
+                            les priorités et les dépendances)
+        début de l'activation de la tâche
+        fin de l'activation de la tâche pour calculer la durée
+        notifications :
+            date maximale pour faire cette tâche
+            durée maximale que l'on s'autorise à travailler sur une tâche
+            durée minimale que l'on s'autorise à travailler sur cette tâche
+            compteurs de 2 minutes
+            compteurs pour le système (10+2)x5
+    * Résumé des actions faites:
+        Affichage des actions faites: 
+            avec cumul ou avec prorata des tâches parallèles
+                (penser à une hierarchiesation des contextes et projets)
+            avec affichage des durées intelligentes pour pouvoir écrire 1d 4h
+            ou 1w 2d 3h par exemple.
+                (journées de 8h par exemples, 
+                    5 jours par semaines, 160h par mois)
+
+    * Résumé des actions à faire 
+        - affichage en arbre des dépendances entre tâches (à la Gantt)
+        - affichage regroupé par projet
+        - affichage regroupé par contexte
+
+        exemple: avec graphviz
+                    
+
+    État de la tâche activée ou non.
+
+
+  - ordre des tâches :
+    <date> et <durée> :
+    1 - tâche de moins de 2 minutes
+    2 - tâches avec date dépassées
+    3 - tâches pour aujourd'hui
+    4 - tâches sans date
+    5 - tâches sans date de début
+    6 - tâches avec date de début dans le futur
+    7 - tâches en attente d'une intervention extérieure
+    8 - tâches en attente de la fin d'une autre tâche pas encore terminée
+
+    Au sein d'un même groupe : c'est la priorité qui prime

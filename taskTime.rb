@@ -13,4 +13,7 @@ class TaskTime
     def initialize()
         @creation_date=Time.now
     end
+    def taskTimeRegExp
+        return Regexp.new(" #[^ ]*")
+    end
 end
