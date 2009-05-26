@@ -41,23 +41,26 @@ class Task
             '{' + @tags.map{ |x| x.to_s }.join(", ") + '}'
     end
 
+    # -- constant class variable for each part 
+    # -- of the regular expressions
+
     # Regular Expressions for that class
     @@StdTokenRegExp=/(\w+|"[^"]*")/
     # Context
-    @@ContextsRegExp=Regexp.new(%{ @#{StdTokenRegExp.inspect}})
+    @@ContextsRegExp=Regexp.new(%{ @#{@@StdTokenRegExp.inspect}})
     # Project
-    @@ProjectsRegExp=Regexp.new(%{\[#{StdTokenRegExp.inspect}\]})
+    @@ProjectsRegExp=Regexp.new(%{\\[#{@@StdTokenRegExp.inspect}\\]})
     # Contact
-    @@ContactsRegExp=Regexp.new(%{ (c|contact):#{StdTokenRegExp.inspect}})
+    @@ContactsRegExp=Regexp.new(%{ (c|contact):#{@@StdTokenRegExp.inspect}})
     # Notes
-    @@NotesRegExp=Regexp.new(%{\(#{StdTokenRegExp.inspect}\)})
+    @@NotesRegExp=Regexp.new(%{\(#{@@StdTokenRegExp.inspect}\)})
 
     def from_s( raw_input )
 
-        @contexts=raw.scan(ContextsRegExp).map{ |x| x[0] }
-        @projects=raw.scan(ProjectsRegExp).map{ |x| x[0] }
-        @contacts=raw.scan(ContactsRegExp).map{ |x| x[1] }
-        @notes   =raw.scan(   NotesRegExp).map{ |x| x[0] }
+        @contexts=raw.scan(@@ContextsRegExp).map{ |x| x[0] }
+        @projects=raw.scan(@@ProjectsRegExp).map{ |x| x[0] }
+        @contacts=raw.scan(@@ContactsRegExp).map{ |x| x[1] }
+        @notes   =raw.scan(   @@NotesRegExp).map{ |x| x[0] }
         # @contexts=raw.scan(/ @(\w+|"[^"]*")/).map{ |x| x[0] }
         # @projects=raw.scan(/\[(\w+|"[^"]*")\]/).map{ |x| x[0] }
         # @contacts=raw.scan(/ (c|contact):(\w+|"[^"]*")/).map{ |x| x[1] }
