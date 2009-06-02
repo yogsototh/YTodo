@@ -23,7 +23,7 @@ class Task
         # tags
         @tags=tags
     end
-    def initialize(description)
+    def initialize(raw_input)
         @notes=[]
         @contacts=[]
         @contexts=[]
@@ -31,14 +31,16 @@ class Task
         @tags=[]
         @priority=0
         @dates=TaskTime.new()
+        from_s(raw_input)
     end
     def to_s
-        return @description + 
-            @contexts.map { |x| x.to_s }.join(" ") + 
-            @projects.map { |x| '['+x.to_s+']' }.join(" ") +
-            @contacts.map { |x| x.to_s }.join(" ") +
-            @dates.to_s +
-            '{' + @tags.map{ |x| x.to_s }.join(", ") + '}'
+        res=@description
+        if (@contexts): res+=' ' + @contexts.map { |x| x.to_s }.join(" ") end
+        if (@projects): res+=' ' + @projects.map { |x| '['+x.to_s+']' }.join(" ") end
+        if (@contacts): res+=' ' + @contacts.map { |x| x.to_s }.join(" ") end
+        if (@dates):    res+=' ' + @dates.to_s end
+        if (@tags):     res+=' ' + '{' + @tags.map{ |x| x.to_s }.join(", ") + '}' end
+        return res
     end
 
     # -- constant class variable for each part 
@@ -57,20 +59,22 @@ class Task
 
     def from_s( raw_input )
 
-        @contexts=raw.scan(@@ContextsRegExp).map{ |x| x[0] }
-        @projects=raw.scan(@@ProjectsRegExp).map{ |x| x[0] }
-        @contacts=raw.scan(@@ContactsRegExp).map{ |x| x[1] }
-        @notes   =raw.scan(   @@NotesRegExp).map{ |x| x[0] }
-        # @contexts=raw.scan(/ @(\w+|"[^"]*")/).map{ |x| x[0] }
-        # @projects=raw.scan(/\[(\w+|"[^"]*")\]/).map{ |x| x[0] }
-        # @contacts=raw.scan(/ (c|contact):(\w+|"[^"]*")/).map{ |x| x[1] }
-        # @notes=raw.scan(/\[(\w+|"[^"]*")\]/).map{ |x| x[1] }
+        @contexts=raw_input.scan(@@ContextsRegExp).map{ |x| x[0] }
+        @projects=raw_input.scan(@@ProjectsRegExp).map{ |x| x[0] }
+        @contacts=raw_input.scan(@@ContactsRegExp).map{ |x| x[1] }
+        @notes   =raw_input.scan(   @@NotesRegExp).map{ |x| x[0] }
 
         # somehow special for the priority
-        @priority= raw.scan( /!/ ).length - raw.scan( /\?/ ).length
+        @priority= raw_input.scan( /!/ ).length - raw_input.scan( /\?/ ).length
 
         @description=raw_input.gsub(
-            Regexp.union(@@ContextsRegExp, @@ProjectsRegExp, @@ContactsRegExp, @@NotesRegExp, /!/, /\?/, @date.dateRegexp),"")
-        @dates   =TaskTime.from_s(raw_input)
+            Regexp.union(@@ContextsRegExp, @@ProjectsRegExp, 
+                         @@ContactsRegExp, @@NotesRegExp, 
+                         /!/, /\?/, @dates.regexp),"")
+        @dates=TaskTime.new(raw_input)
     end
 end
+
+current = Task.new("Coucou");
+print current.to_s
+print "\n"
