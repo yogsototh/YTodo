@@ -4,25 +4,6 @@ require 'taskTime.rb'
 require 'contact.rb'
 
 class Task
-    def initialize(description, note, contacts, 
-                   contexts, projects, dates, tags)
-        # the title of the task
-        @description=description    
-        # list of additionnal informations about the note
-        # such as files (pdf, csv...)
-        # details concerning this task
-        @notes=notes
-        # list of contacts
-        @contacts=contacts
-        # list of contextes
-        @contexts=contexts
-        # list of projects
-        @projects=projects
-        # multiple date associated to a task
-        @dates=dates
-        # tags
-        @tags=tags
-    end
     def initialize(raw_input)
         @notes=[]
         @contacts=[]
@@ -35,11 +16,31 @@ class Task
     end
     def to_s
         res=@description
-        if (@contexts): res+=' ' + @contexts.map { |x| x.to_s }.join(" ") end
-        if (@projects): res+=' ' + @projects.map { |x| '['+x.to_s+']' }.join(" ") end
-        if (@contacts): res+=' ' + @contacts.map { |x| x.to_s }.join(" ") end
-        if (@dates):    res+=' ' + @dates.to_s end
-        if (@tags):     res+=' ' + '{' + @tags.map{ |x| x.to_s }.join(", ") + '}' end
+        if (@contexts.length>0): res+=' ' + @contexts.map { |x| x.to_s }.join(" ") end
+        if (@projects.length>0): res+=' ' + @projects.map { |x| '['+x.to_s+']' }.join(" ") end
+        if (@contacts.length>0): res+=' ' + @contacts.map { |x| x.to_s }.join(" ") end
+        if (@dates):             res+=' ' + @dates.to_s end
+        if (@tags.length>0):     res+=' ' + '{' + @tags.map{ |x| x.to_s }.join(", ") + '}' end
+        return res
+    end
+
+    def to_detailled_s
+        res='desc: '+@description
+        if (@contexts.length>0): 
+            res+="\n contexts:" + @contexts.map { |x| x.to_s }.join(" ") 
+        end
+        if (@projects.length>0): 
+            res+="\n projects:" + @projects.map { |x| '['+x.to_s+']' }.join(" ") 
+        end
+        if (@contacts.length>0): 
+            res+="\n contacts:" + @contacts.map { |x| x.to_s }.join(" ") 
+        end
+        if (@dates):           
+            res+="\n dates   :\n" + @dates.to_detailled_s 
+        end
+        if (@tags.length>0):     
+            res+="\n tags    :" + '{' + @tags.map{ |x| x.to_s }.join(", ") + '}' 
+        end
         return res
     end
 
@@ -47,15 +48,15 @@ class Task
     # -- of the regular expressions
 
     # Regular Expressions for that class
-    @@StdTokenRegExp=/(\w+|"[^"]*")/
+    @@StdTokenRegExp=Regexp.new(%{(\\w+|"[^"]*")})
     # Context
-    @@ContextsRegExp=Regexp.new(%{ @#{@@StdTokenRegExp.inspect}})
+    @@ContextsRegExp=Regexp.new(%{ @#{@@StdTokenRegExp.inspect[1..-2]}})
     # Project
-    @@ProjectsRegExp=Regexp.new(%{\\[#{@@StdTokenRegExp.inspect}\\]})
+    @@ProjectsRegExp=Regexp.new(%{\\[#{@@StdTokenRegExp.inspect[1..-2]}\\]})
     # Contact
-    @@ContactsRegExp=Regexp.new(%{ (c|contact):#{@@StdTokenRegExp.inspect}})
+    @@ContactsRegExp=Regexp.new(%{ (c|contact):#{@@StdTokenRegExp.inspect[1..-2]}})
     # Notes
-    @@NotesRegExp=Regexp.new(%{\(#{@@StdTokenRegExp.inspect}\)})
+    @@NotesRegExp=Regexp.new(%{\\(#{@@StdTokenRegExp.inspect[1..-2]}\\)})
 
     def from_s( raw_input )
 
@@ -75,6 +76,6 @@ class Task
     end
 end
 
-current = Task.new("Coucou");
-print current.to_s
+current = Task.new("Coucou @Home #tomorrow");
+print current.to_detailled_s
 print "\n"
