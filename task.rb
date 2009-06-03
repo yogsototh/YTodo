@@ -18,6 +18,8 @@ class Task
         res=@description
         if (@contexts.length>0): res+=' ' + @contexts.map { |x| x.to_s }.join(" ") end
         if (@projects.length>0): res+=' ' + @projects.map { |x| '['+x.to_s+']' }.join(" ") end
+        if (@priority != 0):     res+=' /'+ @priority.to_s + '\\' end
+        if (@notes.length>0):    res+=' ' + @notes.map { |x| '('+x.to_s+')' }.join(" ") end
         if (@contacts.length>0): res+=' ' + @contacts.map { |x| x.to_s }.join(" ") end
         if (@dates):             res+=' ' + @dates.to_s end
         if (@tags.length>0):     res+=' ' + '{' + @tags.map{ |x| x.to_s }.join(", ") + '}' end
@@ -31,6 +33,12 @@ class Task
         end
         if (@projects.length>0): 
             res+="\n projects:" + @projects.map { |x| '['+x.to_s+']' }.join(" ") 
+        end
+        if (@priority != 0):           
+            res+="\n priority: " + @priority.to_s
+        end
+        if (@notes.length>0):           
+            res+="\n notes   : " + @notes.map { |x| '('+x.to_s+')' }.join(" ")
         end
         if (@contacts.length>0): 
             res+="\n contacts:" + @contacts.map { |x| x.to_s }.join(" ") 
@@ -56,7 +64,7 @@ class Task
     # Contact
     @@ContactsRegExp=Regexp.new(%{ (c|contact):#{@@StdTokenRegExp.inspect[1..-2]}})
     # Notes
-    @@NotesRegExp=Regexp.new(%{\\(#{@@StdTokenRegExp.inspect[1..-2]}\\)})
+    @@NotesRegExp=Regexp.new(%{\\(([^\)]*)\\)})
 
     def from_s( raw_input )
 
@@ -76,6 +84,13 @@ class Task
     end
 end
 
-current = Task.new("Coucou @Home #tomorrow");
-print current.to_detailled_s
-print "\n"
+task = Task.new("")
+while true:
+    print "> "
+    task.from_s( STDIN.gets.chomp )
+    print "------------\n"
+    print task.to_s
+    print "\n------------\n"
+    print task.to_detailled_s
+    print "\n------------\n"
+end
