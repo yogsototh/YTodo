@@ -41,7 +41,7 @@ end
 
 if __FILE__ == $0:
     todoList=TodoList.new
-    defaultTaskFile=$0+".tasks"
+    defaultTaskFile="tasks.ytd"
     print defaultTaskFile+"\n"
     todoList.load defaultTaskFile
     while true:

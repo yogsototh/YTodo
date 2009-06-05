@@ -53,11 +53,10 @@ class TaskTime
         str_of_due_date = scanned_input.map{ |x| x[1] }
         @start_date     = Chronic.parse(str_of_due_date)
         raw_input.scan( @@TimeVerbose ).each do |x| 
-            timeValue=Time.parse(x[1])
-            if ! timeValue: 
-                timeValue=Chronic.parse(x[1])
+            timeValue=Chronic.parse(x[1])
+            if timeValue=nil: 
+                timeValue=Time.parse(x[1])
             end
-            puts %{@#{x[0]}=timeValue} 
             eval %{@#{x[0]}=timeValue} 
         end
 

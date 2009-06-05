@@ -16,38 +16,38 @@ class Task
     end
     def to_s
         res=@description
-        if (@contexts.length>0): res+=' ' + @contexts.map { |x| x.to_s }.join(" ") end
-        if (@projects.length>0): res+=' ' + @projects.map { |x| '['+x.to_s+']' }.join(" ") end
-        if (@priority != 0):     res+=' /'+ @priority.to_s + '\\' end
-        if (@notes.length>0):    res+=' ' + @notes.map { |x| '('+x.to_s+')' }.join(" ") end
-        if (@contacts.length>0): res+=' ' + @contacts.map { |x| x.to_s }.join(" ") end
-        if (@dates):             res+=' ' + @dates.to_s end
-        if (@tags.length>0):     res+=' ' + '{' + @tags.map{ |x| x.to_s }.join(", ") + '}' end
+        if (@contexts.length>0): res<<=' ' + @contexts.map { |x| '@'+x.to_s }.join(" ") end
+        if (@projects.length>0): res<<=' ' + @projects.map { |x| '['+x.to_s+']' }.join(" ") end
+        if (@priority != 0):     res<<=' /'+ @priority.to_s + '\\' end
+        if (@notes.length>0):    res<<=' ' + @notes.map { |x| '('+x.to_s+')' }.join(" ") end
+        if (@contacts.length>0): res<<=' ' + @contacts.map { |x| x.to_s }.join(" ") end
+        if (@dates):             res<<=' ' + @dates.to_s end
+        if (@tags.length>0):     res<<=' ' + '{' + @tags.map{ |x| x.to_s }.join(", ") + '}' end
         return res
     end
 
     def to_detailled_s
         res='desc: '+@description
         if (@contexts.length>0): 
-            res+="\n contexts:" + @contexts.map { |x| x.to_s }.join(" ") 
+            res<<="\n contexts:" + @contexts.map { |x| x.to_s }.join(" ") 
         end
         if (@projects.length>0): 
-            res+="\n projects:" + @projects.map { |x| '['+x.to_s+']' }.join(" ") 
+            res<<="\n projects:" + @projects.map { |x| '['+x.to_s+']' }.join(" ") 
         end
         if (@priority != 0):           
-            res+="\n priority: " + @priority.to_s
+            res<<="\n priority: " + @priority.to_s
         end
         if (@notes.length>0):           
-            res+="\n notes   : " + @notes.map { |x| '('+x.to_s+')' }.join(" ")
+            res<<="\n notes   : " + @notes.map { |x| '('+x.to_s+')' }.join(" ")
         end
         if (@contacts.length>0): 
-            res+="\n contacts:" + @contacts.map { |x| x.to_s }.join(" ") 
+            res<<="\n contacts:" + @contacts.map { |x| x.to_s }.join(" ") 
         end
         if (@dates):           
-            res+="\n dates   :\n" + @dates.to_detailled_s 
+            res<<="\n dates   :\n" + @dates.to_detailled_s 
         end
         if (@tags.length>0):     
-            res+="\n tags    :" + '{' + @tags.map{ |x| x.to_s }.join(", ") + '}' 
+            res<<="\n tags    :" + '{' + @tags.map{ |x| x.to_s }.join(", ") + '}' 
         end
         return res
     end
@@ -58,7 +58,7 @@ class Task
     # Regular Expressions for that class
     @@StdTokenRegExp=Regexp.new(%{(\\w+|"[^"]*")})
     # Context
-    @@ContextsRegExp=Regexp.new(%{ @#{@@StdTokenRegExp.inspect[1..-2]}})
+    @@ContextsRegExp=Regexp.new(%{(^| )@#{@@StdTokenRegExp.inspect[1..-2]}})
     # Project
     @@ProjectsRegExp=Regexp.new(%{\\[#{@@StdTokenRegExp.inspect[1..-2]}\\]})
     # Contact
@@ -70,7 +70,7 @@ class Task
 
     def from_s( raw_input )
 
-        @contexts=raw_input.scan(@@ContextsRegExp).map{ |x| x[0] }
+        @contexts=raw_input.scan(@@ContextsRegExp).map{ |x| x[1] }
         @projects=raw_input.scan(@@ProjectsRegExp).map{ |x| x[0] }
         @contacts=raw_input.scan(@@ContactsRegExp).map{ |x| x[1] }
         @notes   =raw_input.scan(   @@NotesRegExp).map{ |x| x[0] }
