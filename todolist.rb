@@ -1,10 +1,79 @@
 #!/usr/bin/env ruby
 
+require "task.rb"
+
 class TodoList
     def initialize()
         @todoList=[]
     end
     def addTask(task)
-        @todoList.append(task)
+        @todoList << task
+    end
+    def to_s
+        res=""
+        i=1
+        @todoList.each do |x| 
+            res <<= '[' + i.to_s + '] ' + x.to_s + "\n"
+            i+=1
+        end
+        res
+    end
+    def save(filename)
+        f=File.open(filename, 'w') 
+        f.write( to_s() ) 
+    end
+    def load(filename)
+        begin
+            f=File.open(filename, 'r')
+            while (line=f.readline)
+                puts "ajout de "+line
+                addTask( Task.new( line ) )
+            end
+        rescue Errno::ENOENT
+            puts "no such file #{filename}"
+        rescue IOError => e
+            puts e.exception
+        rescue EOFError
+            f.close
+        end
+    end
+end
+
+if __FILE__ == $0:
+    todoList=TodoList.new
+    defaultTaskFile=$0+".tasks"
+    print defaultTaskFile+"\n"
+    todoList.load defaultTaskFile
+    while true:
+        print "> "
+        entry=STDIN.gets.chomp
+        case entry
+        when /^(a|\+|add) / # ça commence par 'a ' '+ ' ou 'add '
+            todoList.addTask( Task.new(entry.sub(/^(a|\+|add) /,"")) )
+        when /^[@]/
+            todoList.addTask( Task.new(entry) )
+        when /^(l|list)( ?(\d*))?/
+            if $3.length>0: print "number "+$3 end
+            print todoList.to_s
+        when /^(s|save)( (.*))?/
+            if $3 and $3.length>0: 
+                filename=$3 
+            else
+                filename=defaultTaskFile
+            end
+            puts "saving to " + filename
+            todoList.save filename
+        when /^(load|=>) (.*)/
+            if $2.length>0: 
+                filename = $2 
+            else 
+                filename = defaultTaskFile
+            end
+            todoList.load filename
+        when /^quit$/
+            break
+        else
+            print "/!\\ Commande inconnue /!\\\n"
+        end
     end
 end

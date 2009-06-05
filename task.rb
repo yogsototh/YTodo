@@ -65,6 +65,8 @@ class Task
     @@ContactsRegExp=Regexp.new(%{ (c|contact):#{@@StdTokenRegExp.inspect[1..-2]}})
     # Notes
     @@NotesRegExp=Regexp.new(%{\\(([^\)]*)\\)})
+    # Tags
+    @@TagsRegExp=Regexp.new(%{\\{#{@@StdTokenRegExp.inspect[1..-2]}\\}})
 
     def from_s( raw_input )
 
@@ -72,6 +74,7 @@ class Task
         @projects=raw_input.scan(@@ProjectsRegExp).map{ |x| x[0] }
         @contacts=raw_input.scan(@@ContactsRegExp).map{ |x| x[1] }
         @notes   =raw_input.scan(   @@NotesRegExp).map{ |x| x[0] }
+        @tags    =raw_input.scan(    @@TagsRegExp).map{ |x| x[0] }
 
         # somehow special for the priority
         @priority= raw_input.scan( /!/ ).length - raw_input.scan( /\?/ ).length
@@ -84,13 +87,15 @@ class Task
     end
 end
 
-task = Task.new("")
-while true:
-    print "> "
-    task.from_s( STDIN.gets.chomp )
-    print "------------\n"
-    print task.to_s
-    print "\n------------\n"
-    print task.to_detailled_s
-    print "\n------------\n"
+if __FILE__ == $0:
+    task = Task.new("")
+    while true:
+        print "> "
+        task.from_s( STDIN.gets.chomp )
+        print "------------\n"
+        print task.to_s
+        print "\n------------\n"
+        print task.to_detailled_s
+        print "\n------------\n"
+    end
 end

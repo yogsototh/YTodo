@@ -3,6 +3,7 @@
 # -- pour la lecture de la date à partir du language naturel
 require 'rubygems'
 require 'chronic'
+require 'time'
 
 class TaskTime
     @creation_date  # creation date of the task
@@ -19,16 +20,18 @@ class TaskTime
     # Regular Expressions for that class
     @@StdTokenRegExp=Regexp.new(%{(\\w+|"[^"]*")})
     # Notes
-    @@Time=Regexp.new(%{#(#{@@StdTokenRegExp.inspect[1..-2]}(,|->))?#{@@StdTokenRegExp.inspect[1..-2]}})
+    @@TimeShort=Regexp.new(%{#(#{@@StdTokenRegExp.inspect[1..-2]}(,|->))?#{@@StdTokenRegExp.inspect[1..-2]}})
+    @@TimeVerbose=Regexp.new(%{ (created|done|due|duration|max_duration|min_duration):(#{@@StdTokenRegExp.inspect[1..-2]})} )
+    @@Time=Regexp.union(@@TimeShort,@@TimeVerbose)
 
     def to_s
-        res=%{created:#{@creation_date}}
-        if ( @start_date )  : res+=%{,started:#{@start_date}}       end
-        if ( @done_date )   : res+=%{,done:#{@done_date}}           end
-        if ( @due_date )    : res+=%{,due:#{@due_date}}             end
-        if ( @duration )    : res+=%{,duration:#{@duration}}        end
-        if ( @max_duration ): res+=%{,max_duration:#{@duration}}    end
-        if ( @min_duration ): res+=%{,min_duration:#{@duration}}    end
+        res=%{created:"#{@creation_date}"}
+        if ( @start_date )  : res+=%{,started:"#{@start_date}"}       end
+        if ( @done_date )   : res+=%{,done:"#{@done_date}"}           end
+        if ( @due_date )    : res+=%{,due:"#{@due_date}"}             end
+        if ( @duration )    : res+=%{,duration:"#{@duration}"}        end
+        if ( @max_duration ): res+=%{,max_duration:"#{@duration}"}    end
+        if ( @min_duration ): res+=%{,min_duration:"#{@duration}"}    end
         return res
     end
 
@@ -44,11 +47,20 @@ class TaskTime
     end
 
     def from_s( raw_input )
-        scanned_input=raw_input.scan( @@Time )
+        scanned_input=raw_input.scan( @@TimeShort )
         str_of_start_date = scanned_input.map{ |x| x[3] }
         @due_date       = Chronic.parse(str_of_start_date)
         str_of_due_date = scanned_input.map{ |x| x[1] }
         @start_date     = Chronic.parse(str_of_due_date)
+        raw_input.scan( @@TimeVerbose ).each do |x| 
+            timeValue=Time.parse(x[1])
+            if ! timeValue: 
+                timeValue=Chronic.parse(x[1])
+            end
+            puts %{@#{x[0]}=timeValue} 
+            eval %{@#{x[0]}=timeValue} 
+        end
+
     end
 
     def initialize ( raw_input=nil )
