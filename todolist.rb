@@ -26,8 +26,8 @@ class TodoList
         begin
             f=File.open(filename, 'r')
             while (line=f.readline)
-                puts "ajout de "+line
-                addTask( Task.new( line ) )
+                puts "ajout de "+line[4..-2]
+                addTask( Task.new(line[4..-2]) )
             end
         rescue Errno::ENOENT
             puts "no such file #{filename}"
@@ -70,7 +70,7 @@ if __FILE__ == $0:
                 filename = defaultTaskFile
             end
             todoList.load filename
-        when /^quit$/
+        when /^q(uit)?$/
             break
         else
             print "/!\\ Commande inconnue /!\\\n"

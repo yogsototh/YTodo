@@ -84,7 +84,7 @@ class Task
         @tags    =raw_input.scan(    @@TagsRegExp).map{ |x| x[0] }
 
         # somehow special for the priority
-        @priority= raw_input.scan( /!/ ).length - raw_input.scan( /\?/ ).length
+        @priority=raw_input.scan( /!/ ).length - raw_input.scan( /\?/ ).length
 
         @description=raw_input.gsub(
             Regexp.union(@@ContextsRegExp, @@ProjectsRegExp, 
