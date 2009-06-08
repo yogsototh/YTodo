@@ -15,7 +15,7 @@ class Task
         from_s(raw_input)
     end
     def to_s
-        res=@description
+        res=@description.clone
         if (@contexts.length>0): res<<=' ' + @contexts.map { |x| '@'+x.to_s }.join(" ") end
         if (@projects.length>0): res<<=' ' + @projects.map { |x| '['+x.to_s+']' }.join(" ") end
         if (@priority != 0):     res<<=' /'+ @priority.to_s + '\\' end
