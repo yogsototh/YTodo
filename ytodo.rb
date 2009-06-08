@@ -1,0 +1,93 @@
+#!/usr/bin/env ruby
+
+require "todolist.rb"
+
+# this file run the minimal GUI
+#
+# it lacks a read config from config file
+listeEnvVariables=[]
+autosave=true
+listeEnvVariables<<='autosave'
+defaultTaskFile="tasks.ytd"
+listeEnvVariables<<='defaultTaskFile'
+
+def showVariable (varname) 
+    printf '%20s = ', varname
+    eval "puts "+varname
+end
+
+if __FILE__ == $0:
+    todoList=TodoList.new
+    todoList.load defaultTaskFile
+    while true:
+        print "> "
+        entry=STDIN.gets.chomp
+        case entry
+        when /^(a|\+|add) / # ça commence par 'a ' '+ ' ou 'add '
+            todoList.addTask( Task.new(entry.sub(/^(a|\+|add) /,"")) )
+            if autosave: 
+                todoList.save defaultTaskFile 
+            end
+        when /^[@]/
+            todoList.addTask( Task.new(entry) )
+        when /^(l|list)( ?(\d*))?/
+            if $3.length>0: print "number "+$3 end
+            print todoList.to_s
+        when /^(s|save)( (.*))?$/
+            if $3 and $3.length>0: 
+                filename=$3 
+            else
+                filename=defaultTaskFile
+            end
+            puts "saving to " + filename
+            todoList.save filename
+        when /^(load|=>) (.*)/
+            if $2.length>0: 
+                filename = $2 
+            else 
+                filename = defaultTaskFile
+            end
+            todoList.load filename
+        when /^h(elp)?$/
+            # Vim tips not to loose any command
+            # :r!grep when ytodo.rb 
+            puts '
+    a + add @           add an entry
+    h,help              show this message
+    l,list              list the tasks
+    load,=> [filename]  load the tasks from file filename
+    q,quit              quit
+    s,save [filename]   save the tasks to file filename
+    show [conf key]     show the value of a configuration variable
+    '
+        when /^(show)( (.*))?$/
+            varname=$3
+            if varname and (varname.length>0):
+                if listeEnvVariables.include?(varname):
+                    printf '%20s = ', varname
+                    eval "puts "+varname
+                else
+                    found=false
+                    listeEnvVariables.grep(Regexp.new(varname)).each do |elem|
+                        printf '%20s = ', elem
+                        eval "puts "+elem
+                        found=true
+                    end
+                    if not found:
+                        puts 'unknown variable name: '+varname
+                        puts 'please select one of: '+listeEnvVariables.join(', ')
+                    end
+                end
+            else
+                listeEnvVariables.each do |key| 
+                    printf '%20s = ', key
+                    eval "puts "+key
+                end
+            end
+        when /^q(uit)?$/
+            break
+        else
+            print "/!\\ Commande inconnue /!\\\n"
+        end
+    end
+end
