@@ -25,16 +25,22 @@ class TodoList
     def load(filename)
         begin
             f=File.open(filename, 'r')
+            nbTasks=0
             while (line=f.readline)
-                puts "ajout de "+line[4..-2]
-                addTask( Task.new(line[4..-2]) )
+                # delete the number ([...]) and
+                # the newline character
+                line.match(/\[[^\]]*\] (.*)[\r\n]$/)
+                line=$1
+                addTask( Task.new(line) )
+                nbTasks+=1
             end
         rescue Errno::ENOENT
             puts "no such file #{filename}"
+        rescue EOFError
+            puts "Loaded "+nbTasks.to_s+" entries from "+filename
+            f.close
         rescue IOError => e
             puts e.exception
-        rescue EOFError
-            f.close
         end
     end
 end
@@ -42,7 +48,6 @@ end
 if __FILE__ == $0:
     todoList=TodoList.new
     defaultTaskFile="tasks.ytd"
-    print defaultTaskFile+"\n"
     todoList.load defaultTaskFile
     while true:
         print "> "
