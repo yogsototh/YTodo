@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require "todolist.rb"
+require 'readline'
 
 # this file run the minimal GUI
 #
@@ -19,9 +20,7 @@ end
 if __FILE__ == $0:
     todoList=TodoList.new
     todoList.load defaultTaskFile
-    while true:
-        print "> "
-        entry=STDIN.gets.chomp
+    while entry = Readline.readline('> ',true):
         case entry
         when /^(a|\+|add) / # ça commence par 'a ' '+ ' ou 'add '
             todoList.addTask( Task.new(entry.sub(/^(a|\+|add) /,"")) )
