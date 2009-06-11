@@ -28,8 +28,6 @@ if __FILE__ == $0:
             if autosave: 
                 todoList.save defaultTaskFile 
             end
-        when /^[@]/
-            todoList.addTask( Task.new(entry) )
         when /^(l|list)( ?(\d*))?/
             if $3.length>0: print "number "+$3 end
             print todoList.to_s
@@ -52,13 +50,26 @@ if __FILE__ == $0:
             # Vim tips not to loose any command
             # :r!grep when ytodo.rb 
             puts '
-    a + add @           add an entry
+    a + add             add an entry
+    cmd <cmd>, !<cmd>  launch external command
     h,help              show this message
     l,list              list the tasks
     load,=> [filename]  load the tasks from file filename
     q,quit              quit
     s,save [filename]   save the tasks to file filename
     show [conf key]     show the value of a configuration variable
+
+    Tips: 
+        you can also add an entry if the first word is not a command
+    and the entry is longer than 10 characters (most of time it is).
+
+    Reminder:
+    @Context [project] (a note) {tag}
+    priority: !! ! "nothing" ? ??
+    date: 
+        #due_date 
+        #start_date,due_date 
+        for example: #tomorrow,"in 4 days"
     '
         when /^(show)( (.*))?$/
             varname=$3
@@ -86,8 +97,18 @@ if __FILE__ == $0:
             end
         when /^q(uit)?$/
             break
-        else
+        when /^(!|cmd )(.+)$/
+            system( $2 )
+        # must be the last two entries
+        when /^.{1,10}$/ 
+            # if the entry is not 
+            # recognized and less than 10 characters 
+            # long then we output an error
             print "/!\\ Commande inconnue /!\\\n"
+        else 
+            # if the entry is more than 10 characters long
+            # and not recognized then it is a new entry
+            todoList.addTask( Task.new(entry) )
         end
     end
 end
