@@ -9,7 +9,7 @@ require 'readline'
 listeEnvVariables=[]
 autosave=true
 listeEnvVariables<<='autosave'
-defaultTaskFile="tasks.ytd"
+defaultTaskFile="TODO"
 listeEnvVariables<<='defaultTaskFile'
 
 def showVariable (varname) 
@@ -18,6 +18,20 @@ def showVariable (varname)
 end
 
 if __FILE__ == $0:
+
+    # trap the ^C
+    trap('INT'){
+        if not autosave:
+            answer=Readline.readline('Do you want to save your changes? (y/n)',false)
+            if not answer =~ /^no?$/:
+                puts "Changes saved in #{defaultTaskFile}"
+                todoList.save defaultTaskFile
+            end
+        end
+        puts "\nGood Bye... See you later for another safe and productive day"
+        exit 0
+    }
+
     todoList=TodoList.new
     todoList.load defaultTaskFile
     while entry = Readline.readline('> ',true):
@@ -49,26 +63,25 @@ if __FILE__ == $0:
             # Vim tips not to loose any command
             # :r!grep when ytodo.rb 
             puts '
-    a + add             add an entry
-    cmd <cmd>, !<cmd>  launch external command
-    h,help              show this message
-    l,list              list the tasks
-    load,=> [filename]  load the tasks from file filename
-    q,quit              quit
-    s,save [filename]   save the tasks to file filename
-    show [conf key]     show the value of a configuration variable
+    COMMANDS 
+a,+,add <entry>         add an entry
+cmd,! <cmd>             launch external command
+h,help                  show this message
+l,list                  list the tasks
+load,=> [filename]      load the tasks from file filename
+q,quit                  quit
+s,save [filename]       save the tasks to file filename
+show [conf key]         show the value of a configuration variable
 
-    Tips: 
-        you can also add an entry if the first word is not a command
-    and the entry is longer than 10 characters (most of time it is).
+    TIPS
+If your entrie is longer than 10 character long and the first
+word is not a command. The entrie is added to task.
 
-    Reminder:
-    @Context [project] (a note) {tag}
-    priority: !! ! "nothing" ? ??
-    date: 
-        #due_date 
-        #start_date,due_date 
-        for example: #tomorrow,"in 4 days"
+    REMINDER
+  @Context [project] (a note) {tag}
+Priority:   (higher) !!  ! "nothing" ? ?? (lower)
+Date:       #due_date, #start_date,due_date 
+    example:    #tomorrow,"in 4 days"
     '
         when /^(show)( (.*))?$/
             varname=$3
@@ -108,6 +121,9 @@ if __FILE__ == $0:
             # if the entry is more than 10 characters long
             # and not recognized then it is a new entry
             todoList.addTask( Task.new(entry) )
+            if autosave: 
+                todoList.save defaultTaskFile 
+            end
         end
     end
 end
