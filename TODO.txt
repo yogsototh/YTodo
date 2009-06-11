@@ -1,4 +1,0 @@
-[X] ajouter la méthode dateRegExp à la classe TaskDateTime qui renvoie une
-    expression régulière qui matche toutes les dates dans la chaînes de
-    caractère. De manière à pouvoir les supprimer et retrouver le message
-    de la task.
