@@ -4,6 +4,7 @@
 require 'rubygems'
 require 'chronic'
 require 'time'
+require 'humanTimeOutput.rb'
 
 class TaskTime
     @created        # creation date of the task

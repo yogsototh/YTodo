@@ -7,10 +7,12 @@ require 'readline'
 #
 # it lacks a read config from config file
 listeEnvVariables=[]
+
 autosave=true
 listeEnvVariables<<='autosave'
-defaultTaskFile="TODO"
-listeEnvVariables<<='defaultTaskFile'
+
+saveFile="TODO"
+listeEnvVariables<<='saveFile'
 
 def showVariable (varname) 
     printf '%20s = ', varname
@@ -24,8 +26,8 @@ if __FILE__ == $0:
         if not autosave:
             answer=Readline.readline('Do you want to save your changes? (y/n)',false)
             if not answer =~ /^no?$/:
-                puts "Changes saved in #{defaultTaskFile}"
-                todoList.save defaultTaskFile
+                puts "Changes saved in #{saveFile}"
+                todoList.save saveFile
             end
         end
         puts "\nGood Bye... See you later for another safe and productive day"
@@ -33,13 +35,13 @@ if __FILE__ == $0:
     }
 
     todoList=TodoList.new
-    todoList.load defaultTaskFile
+    todoList.load saveFile
     while entry = Readline.readline('> ',true):
         case entry
         when /^(a|\+|add) / # ça commence par 'a ' '+ ' ou 'add '
             todoList.addTask( Task.new(entry.sub(/^(a|\+|add) /,"")) )
             if autosave: 
-                todoList.save defaultTaskFile 
+                todoList.save saveFile 
             end
         when /^(l|list)( ?(\d*))?/
             if $3.length>0: print "number "+$3 end
@@ -48,7 +50,7 @@ if __FILE__ == $0:
             if $3 and $3.length>0: 
                 filename=$3 
             else
-                filename=defaultTaskFile
+                filename=saveFile
             end
             puts "saving to " + filename
             todoList.save filename
@@ -56,7 +58,7 @@ if __FILE__ == $0:
             if $2.length>0: 
                 filename = $2 
             else 
-                filename = defaultTaskFile
+                filename = saveFile
             end
             todoList.load filename
         when /^h(elp)?$/
@@ -107,11 +109,17 @@ Date:       #due_date, #start_date,due_date
                     eval "puts "+key
                 end
             end
+        when /^set ([^= ]*)(=|\s*)(.*)$/
+            # default all variable are strings
+            begin
+                eval $1+"="+$3
+            end
         when /^q(uit)?$/
             break
         when /^(!|cmd )(.+)$/
             system( $2 )
         # must be the last two entries
+        when /^$/ 
         when /^.{1,10}$/ 
             # if the entry is not 
             # recognized and less than 10 characters 
@@ -122,7 +130,7 @@ Date:       #due_date, #start_date,due_date
             # and not recognized then it is a new entry
             todoList.addTask( Task.new(entry) )
             if autosave: 
-                todoList.save defaultTaskFile 
+                todoList.save saveFile 
             end
         end
     end
