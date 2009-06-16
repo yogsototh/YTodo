@@ -14,9 +14,34 @@ listeEnvVariables<<='autosave'
 saveFile="TODO"
 listeEnvVariables<<='saveFile'
 
-def showVariable (varname) 
-    printf '%20s = ', varname
-    eval "puts "+varname
+doneFile="DONE"
+listeEnvVariables<<='doneFile'
+
+# Print help message
+def putsHelpMessage
+    # Vim tips not to loose any command
+    # :r!grep when ytodo.rb 
+    puts '
+    COMMANDS 
+a,+,add <entry>         add an entry
+cmd,! <cmd>             launch external command
+h,help                  show this message
+l,list                  list the tasks
+load,=> [filename]      load the tasks from file filename
+q,quit                  quit
+s,save [filename]       save the tasks to file filename
+show [conf key]         show the value of a configuration variable
+
+    TIPS
+If your entrie is longer than 10 character long and the first
+word is not a command. The entrie is added to task.
+
+    REMINDER
+  @Context [project] (a note) {tag}
+Priority:   (higher) !!  ! "nothing" ? ?? (lower)
+Date:       #due_date, #start_date,due_date 
+    example:    #tomorrow,"in 4 days"
+    '
 end
 
 if __FILE__ == $0:
@@ -38,15 +63,24 @@ if __FILE__ == $0:
     todoList.load saveFile
     while entry = Readline.readline('> ',true):
         case entry
-        when /^(a|\+|add) / # ça commence par 'a ' '+ ' ou 'add '
+        when /^(a|\+|add) /
+            # Add en entry
             todoList.addTask( Task.new(entry.sub(/^(a|\+|add) /,"")) )
             if autosave: 
                 todoList.save saveFile 
             end
         when /^(l|list)( ?(\d*))?/
+            # list the entries
             if $3.length>0: print "number "+$3 end
             print todoList.to_s
+        when /^(done|archive) (\d*)/
+            # archive task
+            taskNumber=$2
+        when /^q(uit)?$/ 
+            # Quit
+            break
         when /^(s|save)( (.*))?$/
+            # save to file
             if $3 and $3.length>0: 
                 filename=$3 
             else
@@ -55,6 +89,7 @@ if __FILE__ == $0:
             puts "saving to " + filename
             todoList.save filename
         when /^(load|=>) (.*)/
+            # load from file
             if $2.length>0: 
                 filename = $2 
             else 
@@ -62,29 +97,8 @@ if __FILE__ == $0:
             end
             todoList.load filename
         when /^h(elp)?$/
-            # Vim tips not to loose any command
-            # :r!grep when ytodo.rb 
-            puts '
-    COMMANDS 
-a,+,add <entry>         add an entry
-cmd,! <cmd>             launch external command
-h,help                  show this message
-l,list                  list the tasks
-load,=> [filename]      load the tasks from file filename
-q,quit                  quit
-s,save [filename]       save the tasks to file filename
-show [conf key]         show the value of a configuration variable
-
-    TIPS
-If your entrie is longer than 10 character long and the first
-word is not a command. The entrie is added to task.
-
-    REMINDER
-  @Context [project] (a note) {tag}
-Priority:   (higher) !!  ! "nothing" ? ?? (lower)
-Date:       #due_date, #start_date,due_date 
-    example:    #tomorrow,"in 4 days"
-    '
+            putsHelpMessage
+            # show help message
         when /^(show)( (.*))?$/
             varname=$3
             if varname and (varname.length>0):
@@ -114,17 +128,16 @@ Date:       #due_date, #start_date,due_date
             begin
                 eval $1+"="+$3
             end
-        when /^q(uit)?$/
-            break
         when /^(!|cmd )(.+)$/
             system( $2 )
-        # must be the last two entries
+        # DEV # must be the last two entries # DEV #
         when /^$/ 
+            # do nothing when there is no entry
         when /^.{1,10}$/ 
             # if the entry is not 
             # recognized and less than 10 characters 
             # long then we output an error
-            print "/!\\ Commande inconnue /!\\\n"
+            print "/!\\ Unknown command /!\\\n"
         else 
             # if the entry is more than 10 characters long
             # and not recognized then it is a new entry

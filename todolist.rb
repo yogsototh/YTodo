@@ -9,6 +9,10 @@ class TodoList
     def addTask(task)
         @todoList << task
     end
+    def [] (number)
+        # we begin at 1 (more natural)
+        return @todoList[number-1]
+    end
     def to_s
         res=""
         i=1
@@ -57,6 +61,8 @@ if __FILE__ == $0:
             todoList.addTask( Task.new(entry.sub(/^(a|\+|add) /,"")) )
         when /^[@]/
             todoList.addTask( Task.new(entry) )
+        when /^p (\d+)/
+            puts todoList[Integer($1)].to_s
         when /^(l|list)( ?(\d*))?/
             if $3.length>0: print "number "+$3 end
             print todoList.to_s
