@@ -6,6 +6,9 @@ class TodoList
     def initialize()
         @todoList=[]
     end
+    def empty?
+        @todoList.empty?
+    end
     def addTask(task)
         @todoList << task
     end
@@ -65,7 +68,11 @@ if __FILE__ == $0:
             puts todoList[Integer($1)].to_s
         when /^(l|list)( ?(\d*))?/
             if $3.length>0: print "number "+$3 end
-            print todoList.to_s
+            if todoList.empty?
+                print "Nothing to do!\n"
+            else
+                print todoList.to_s
+            end
         when /^(s|save)( (.*))?/
             if $3 and $3.length>0: 
                 filename=$3 
